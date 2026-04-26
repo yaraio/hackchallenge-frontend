@@ -1,3 +1,11 @@
+//
+//  RingProgressView.swift
+//  HackChallengeFrontend
+//
+//  Created by Troy Corbitt on 4/26/26.
+//
+
+
 import SwiftUI
 
 struct RingProgressView: View {
@@ -33,3 +41,7 @@ struct RingProgressView: View {
 #Preview {
     RingProgressView(progress: 0.65)
 }
+
+
+// https://developer.apple.com/documentation/swiftui/shape/trim%28from%3Ato%3A%29
+// https://docs.swift.org/swift-book/documentation/the-swift-programming-language/thebasics/

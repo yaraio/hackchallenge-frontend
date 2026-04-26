@@ -1,3 +1,11 @@
+//
+//  TaskRowView.swift
+//  HackChallengeFrontend
+//
+//  Created by Troy Corbitt on 4/26/26.
+//
+
+
 import SwiftUI
 
 struct TaskRowView: View {
