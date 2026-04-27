@@ -11,6 +11,8 @@ import SwiftUI
 struct RingProgressView: View {
     
     let progress: Double
+    let completed: Int
+    let total: Int
     
     var body: some View {
         ZStack {
@@ -28,7 +30,9 @@ struct RingProgressView: View {
                 Text("\(Int(progress * 100))%")
                     .font(.title)
                     .fontWeight(.bold)
-                
+                Text("\(completed)/\(total)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 Text("Track Complete")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -39,7 +43,7 @@ struct RingProgressView: View {
 }
 
 #Preview {
-    RingProgressView(progress: 0.65)
+    RingProgressView(progress: 0.65, completed: 4, total: 6)
 }
 
 
