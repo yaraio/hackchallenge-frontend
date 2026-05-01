@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TaskCreationView: View {
     
-    @Binding var tasks: [StudyTask]
+    @ObservedObject var viewModel: TaskViewModel
     @Environment(\.dismiss) private var dismiss
     
     var existingTask: StudyTask? = nil
@@ -19,11 +19,11 @@ struct TaskCreationView: View {
     @State private var priority: String
     @State private var estimatedTime: Double
     
-    init(tasks: Binding<[StudyTask]>, existingTask: StudyTask? = nil) {
-        _tasks = tasks
+    init(viewModel: TaskViewModel, existingTask: StudyTask? = nil) {
+        self.viewModel = viewModel
         _name = State(initialValue: existingTask?.name ?? "")
         _description = State(initialValue: existingTask?.description ?? "")
-        _priority = State(initialValue: existingTask?.priority ?? "medium")
+        _priority = State(initialValue: existingTask?.priorityLabel ?? "medium")
         _estimatedTime = State(initialValue: existingTask?.estimatedTime ?? 0.5)
         self.existingTask = existingTask
     }
@@ -48,7 +48,6 @@ struct TaskCreationView: View {
                         }
                     }
                     
-                    // 👇 CHANGED - label on left, controls on right, matches row height
                     HStack {
                         Text("estimated time")
                             .foregroundStyle(Color.black)
@@ -84,19 +83,26 @@ struct TaskCreationView: View {
                 
                 Section {
                     Button(existingTask == nil ? "add task" : "save changes") {
-                        let newTask = StudyTask(
-                            name: name,
-                            description: description,
-                            priority: priority,
-                            estimatedTime: estimatedTime,
-                            points: points,
-                            isCompleted: false
-                        )
-                        if let existing = existingTask,
-                           let index = tasks.firstIndex(where: { $0.id == existing.id }) {
-                            tasks[index] = newTask
+                        if let existingTask = existingTask {
+                            let updatedTask = StudyTask(
+                                id: existingTask.id,
+                                name: name,
+                                description: description,
+                                priority: priority,
+                                estimatedTime: estimatedTime,
+                                points: points,
+                                isCompleted: existingTask.isCompleted,
+                                userId: existingTask.user_id,
+                                dateStarted: existingTask.date_started
+                            )
+                            viewModel.updateTaskLocally(updatedTask)
                         } else {
-                            tasks.append(newTask)
+                            viewModel.createTask(
+                                title: name,
+                                description: description,
+                                priority: priority,
+                                durationMinutes: Int(estimatedTime * 60)
+                            )
                         }
                         dismiss()
                     }
@@ -105,9 +111,8 @@ struct TaskCreationView: View {
                     
                     if existingTask != nil {
                         Button("delete task", role: .destructive) {
-                            if let existing = existingTask,
-                               let index = tasks.firstIndex(where: { $0.id == existing.id }) {
-                                tasks.remove(at: index)
+                            if let existingTask = existingTask {
+                                viewModel.deleteTask(existingTask)
                             }
                             dismiss()
                         }
@@ -124,6 +129,6 @@ struct TaskCreationView: View {
 
 #Preview {
     NavigationStack {
-        TaskCreationView(tasks: .constant([]))
+        TaskCreationView(viewModel: TaskViewModel())
     }
 }

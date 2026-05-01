@@ -4,23 +4,38 @@
 //
 //  Created by Troy Corbitt on 4/26/26.
 //
+//
+//  ContentView.swift
+//  HackChallengeFrontend
+//
+//  Created by Troy Corbitt on 4/26/26.
+//
 import SwiftUI
 
 struct ContentView: View {
     
-    @State private var tasks: [StudyTask] = []
+    @StateObject private var viewModel = TaskViewModel()
     
     var completedCount: Int {
-        tasks.filter { $0.isCompleted }.count
+        viewModel.tasks.filter { $0.isCompleted }.count
     }
     
     var progress: Double {
-        guard !tasks.isEmpty else { return 0 }
-        return Double(completedCount) / Double(tasks.count)
+        guard !viewModel.tasks.isEmpty else { return 0 }
+        return Double(completedCount) / Double(viewModel.tasks.count)
     }
     
     var totalPoints: Int {
-        tasks.filter { $0.isCompleted }.reduce(0) { $0 + $1.points }
+        viewModel.tasks.filter { $0.isCompleted }.reduce(0) { $0 + $1.points }
+    }
+    
+    var sortedTasks: [StudyTask] {
+        viewModel.tasks.sorted { lhs, rhs in
+            if lhs.isCompleted == rhs.isCompleted {
+                return lhs.name.lowercased() < rhs.name.lowercased()
+            }
+            return !lhs.isCompleted && rhs.isCompleted
+        }
     }
     
     var body: some View {
@@ -47,7 +62,7 @@ struct ContentView: View {
                         RingProgressView(
                             progress: progress,
                             completed: completedCount,
-                            total: tasks.count
+                            total: viewModel.tasks.count
                         )
                         
                         // stats
@@ -68,7 +83,7 @@ struct ContentView: View {
                                 .frame(width: 1, height: 40)
                             Spacer()
                             VStack(spacing: 2) {
-                                Text("\(tasks.count - completedCount)")
+                                Text("\(viewModel.tasks.count - completedCount)")
                                     .font(.system(size: 28, weight: .black))
                                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
                                 Text("remain")
@@ -108,8 +123,21 @@ struct ContentView: View {
                         .padding(.horizontal)
                         .padding(.top, 12)
                         
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(Color.vinylGold)
+                                .padding()
+                        }
+                        
+                        if !viewModel.errorMessage.isEmpty {
+                            Text(viewModel.errorMessage)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                                .padding(.horizontal)
+                        }
+                        
                         // task list
-                        if tasks.isEmpty {
+                        if sortedTasks.isEmpty && !viewModel.isLoading {
                             VStack(spacing: 8) {
                                 Text("🎵")
                                     .font(.system(size: 40))
@@ -120,17 +148,14 @@ struct ContentView: View {
                             }
                             .padding(10)
                         } else {
-                            ForEach($tasks.sorted(by: { !$0.isCompleted.wrappedValue && $1.isCompleted.wrappedValue })) { $task in
-                                TaskRowView(task: $task, tasks: $tasks)
-                            }
-                            .onDelete { indexSet in
-                                tasks.remove(atOffsets: indexSet)
+                            ForEach(sortedTasks) { task in
+                                TaskRowView(task: task, viewModel: viewModel)
                             }
                         }
                         
                         // add track button
                         NavigationLink {
-                            TaskCreationView(tasks: $tasks)
+                            TaskCreationView(viewModel: viewModel)
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "plus")
@@ -151,6 +176,12 @@ struct ContentView: View {
                     .padding(.top, 40)
                 }
             }
+            .onAppear {
+                viewModel.fetchTasks()
+            }
+            .refreshable {
+                viewModel.fetchTasks()
+            }
         }
     }
 }
@@ -158,4 +189,3 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
-// scrollable

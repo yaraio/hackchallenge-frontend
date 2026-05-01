@@ -9,8 +9,8 @@ import SwiftUI
 
 struct TaskRowView: View {
     
-    @Binding var task: StudyTask
-    @Binding var tasks: [StudyTask]
+    let task: StudyTask
+    @ObservedObject var viewModel: TaskViewModel
     
     @State private var isExpanded = true
     @State private var isPlaying = true
@@ -31,7 +31,7 @@ struct TaskRowView: View {
     var remainingSeconds: Double { totalSecondsTracked - elapsedSecondsTracked }
     
     var priorityColor: Color {
-        switch task.priority {
+        switch task.priorityLabel {
         case "high": return .red
         case "medium": return .yellow
         default: return Color.vinylGold
@@ -69,7 +69,7 @@ struct TaskRowView: View {
                         .font(.subheadline)
                         .foregroundStyle(Color.vinylGray)
                     HStack(spacing: 6) {
-                        Text("\(task.priority) priority")
+                        Text("\(task.priorityLabel) priority")
                             .font(.caption)
                             .foregroundStyle(Color.vinylGray)
                         Text("•")
@@ -89,7 +89,6 @@ struct TaskRowView: View {
                 
                 Spacer()
                 
-                // chevron
                 Button(action: { isExpanded.toggle() }) {
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 12, weight: .medium))
@@ -97,13 +96,10 @@ struct TaskRowView: View {
                 }
                 .buttonStyle(.plain)
                 
-                // checkmark
                 Button {
-                    task.isCompleted.toggle()
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     if !task.isCompleted {
-                        stopTimer()
-                        elapsedSecondsTracked = 0
+                        viewModel.completeTask(task)
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     }
                 } label: {
                     Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
@@ -114,11 +110,8 @@ struct TaskRowView: View {
             }
             .padding()
             
-            // MARK: Expanded player
             if isExpanded && !task.isCompleted {
                 VStack(spacing: 12) {
-                    
-                    // scrub bar
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 4)
@@ -132,10 +125,8 @@ struct TaskRowView: View {
                             Circle()
                                 .fill(Color.vinylGold)
                                 .frame(width: 12, height: 12)
-                                // 👇 scratchOffset added here
                                 .offset(x: geo.size.width * playbackProgress - 6 + scratchOffset)
                         }
-                        // 👇 drag scrubs by setting elapsedSecondsTracked directly
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged { value in
@@ -147,7 +138,6 @@ struct TaskRowView: View {
                     }
                     .frame(height: 12)
                     
-                    // time labels
                     HStack {
                         Text(formatSeconds(elapsedSeconds))
                             .font(.system(size: 11, weight: .medium))
@@ -158,9 +148,7 @@ struct TaskRowView: View {
                             .foregroundStyle(Color.vinylGray)
                     }
                     
-                    // controls
                     HStack(spacing: 24) {
-                        // rewind
                         Button(action: {
                             elapsedSecondsTracked = 0
                             if isPlaying { startTimer() }
@@ -171,7 +159,6 @@ struct TaskRowView: View {
                         }
                         .buttonStyle(.plain)
                         
-                        // play/pause
                         Button(action: {
                             isPlaying.toggle()
                             if isPlaying { startTimer() } else { stopTimer() }
@@ -188,7 +175,6 @@ struct TaskRowView: View {
                         }
                         .buttonStyle(.plain)
                         
-                        // fast forward
                         Button(action: {
                             elapsedSecondsTracked = min(elapsedSecondsTracked + (totalSecondsTracked * 0.1), totalSecondsTracked)
                         }) {
@@ -202,14 +188,10 @@ struct TaskRowView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 16)
             }
-            
-            
         }
-        
         .navigationDestination(isPresented: $navigateToEdit) {
-            TaskCreationView(tasks: $tasks, existingTask: task)
+            TaskCreationView(viewModel: viewModel, existingTask: task)
         }
-        
         .onAppear {
             totalSecondsTracked = task.estimatedTime * 3600
             elapsedSecondsTracked = 0
@@ -240,7 +222,7 @@ struct TaskRowView: View {
                     
                     VStack(spacing: 10) {
                         Button {
-                            task.isCompleted = true
+                            viewModel.completeTask(task)
                             showTimerAlert = false
                             UINotificationFeedbackGenerator().notificationOccurred(.success)
                         } label: {
@@ -253,7 +235,6 @@ struct TaskRowView: View {
                                 .cornerRadius(14)
                         }
                         
-                        // +30 min — resumes, doesn't restart
                         Button {
                             totalSecondsTracked += 1800
                             isPlaying = true
@@ -270,7 +251,6 @@ struct TaskRowView: View {
                                 .cornerRadius(14)
                         }
                         
-                        // edit task
                         Button {
                             showTimerAlert = false
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -286,7 +266,6 @@ struct TaskRowView: View {
                                 .cornerRadius(14)
                         }
                         
-                        // ignore
                         Button {
                             elapsedSecondsTracked = 0
                             isPlaying = true
@@ -357,17 +336,15 @@ struct TaskRowView: View {
 #Preview {
     NavigationStack {
         TaskRowView(
-            task: .constant(
-                StudyTask(
-                    name: "Read chapter 5",
-                    description: "Take notes on key ideas",
-                    priority: "high",
-                    estimatedTime: 1.0,
-                    points: 1,
-                    isCompleted: false
-                )
+            task: StudyTask(
+                name: "Read chapter 5",
+                description: "Take notes on key ideas",
+                priority: "high",
+                estimatedTime: 1.0,
+                points: 1,
+                isCompleted: false
             ),
-            tasks: .constant([])
+            viewModel: TaskViewModel()
         )
     }
 }
