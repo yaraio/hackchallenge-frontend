@@ -23,67 +23,63 @@ struct RingProgressView: View {
     
     var body: some View {
         ZStack {
-            // vinyl (spins)
+            // needle
+            ZStack {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color(red: 0.75, green: 0.75, blue: 0.75))
+                    .frame(width: 3, height: 80)
+                    .rotationEffect(.degrees(-35), anchor: .top)
+                    .offset(x: -130, y: -80)
+                Circle()
+                    .fill(Color(red: 0.6, green: 0.6, blue: 0.6))
+                    .frame(width: 10, height: 10)
+                    .offset(x: -130, y: -120)
+            }
+            
+            // vinyl
             ZStack {
                 // disk
                 Circle()
                     .fill(Color(red: 0.12, green: 0.12, blue: 0.12))
-                    .frame(width: 300, height: 300)
+                    .frame(width: 260, height: 260)
                 
                 // grooves
                 ForEach(0..<5) { i in
                     Circle()
                         .stroke(Color.white.opacity(0.04), lineWidth: 1)
-                        .frame(width: CGFloat(270 - i * 22), height: CGFloat(270 - i * 22))
+                        .frame(width: CGFloat(240 - i * 22), height: CGFloat(240 - i * 22))
                 }
                 
                 // background arc
                 Circle()
                     .stroke(Color.white.opacity(0.08), lineWidth: 14)
-                    .frame(width: 270, height: 270)
+                    .frame(width: 240, height: 240)
                 
                 // progress arc
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(Color.vinylGold, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                    .frame(width: 270, height: 270)
+                    .frame(width: 240, height: 240)
                     .animation(.easeInOut(duration: 0.6), value: progress)
                 
                 // gold label
                 Circle()
-                    .fill(
-                        //LinearGradient(
-                            //colors: [
-                                //Color(red: 0.85, green: 0.65, blue: 0.35),
-                                //Color(red: 0.70, green: 0.45, blue: 0.20)
-                                //],
-                            //startPoint: .topLeading,
-                            //endPoint: .bottomTrailing
-                       // )
-                        Color.vinylGold)
-                    .frame(width: 120, height: 120)
+                    .fill(Color.vinylGold)
+                    .frame(width: 90, height: 90)
                 
-                // text
-                VStack(spacing: 0) {
-                    if isComplete {
-                        Text("✓")
-                            .font(.system(size: 25, weight: .black))
-                            .foregroundColor(.black.opacity(0.7))
-                    } else {
-                        Text("\(Int(progress * 100))%")
-                            .font(.system(size: 25, weight: .black))
-                            .foregroundColor(.black.opacity(0.7))
-                    }
+                // center text
+                if isComplete {
+                    Text("✓")
+                        .font(.system(size: 22, weight: .black))
+                        .foregroundColor(.black.opacity(0.7))
+                } else {
+                    Text("\(Int(progress * 100))%")
+                        .font(.system(size: 18, weight: .black))
+                        .foregroundColor(.black.opacity(0.7))
                 }
                 
-                // hole below text
-                //Circle()
-                    //.fill(Color(red: 0.12, green: 0.12, blue: 0.12))
-                   // .frame(width: 5, height: 5)
-                    //.offset(y: 18)
-                
-                // notes
+                // music notes
                 ZStack {
                     if showNote1 {
                         Text("♪")
@@ -105,22 +101,18 @@ struct RingProgressView: View {
                     }
                 }
             }
+            // 👇 only spins on task complete, nothing else
             .rotationEffect(.degrees(rotation))
             .onChange(of: completed) {
                 guard completed > 0 else { return }
-                
-                // slow start
                 withAnimation(.easeIn(duration: 0.4)) {
                     rotation += 60
                 }
-                // then fast
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     withAnimation(.linear(duration: 0.6)) {
                         rotation += 300
                     }
                 }
-                
-                // notes
                 showNote1 = true
                 showNote2 = true
                 showNote3 = true
@@ -130,34 +122,10 @@ struct RingProgressView: View {
                     showNote3 = false
                 }
             }
-            .onAppear {
-                if isComplete {
-                    withAnimation(.linear(duration: 10).repeatForever(autoreverses: false)) {
-                        rotation = 360
-                    }
-                }
-            }
-            // needle on left side
-            ZStack {
-                // arm
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(Color(red: 0.75, green: 0.75, blue: 0.75))
-                    .frame(width: 3, height: 120)
-                    .rotationEffect(.degrees(-35), anchor: .top)
-                    .offset(x: -130, y: -80)
-                
-                // pivot dot
-                Circle()
-                    .fill(Color(red: 0.6, green: 0.6, blue: 0.6))
-                    .frame(width: 10, height: 10)
-                    .offset(x: -130, y: -140)
-            }
-            
         }
         .padding()
     }
 }
-
 
 struct FlyingNoteModifier: ViewModifier {
     let x: CGFloat
@@ -171,11 +139,9 @@ struct FlyingNoteModifier: ViewModifier {
             .opacity(opacity)
             .scaleEffect(animate ? 1.4 : 0.8)
             .onAppear {
-                // fly out
                 withAnimation(.easeOut(duration: 1.5)) {
                     animate = true
                 }
-                // fade out after a delay
                 withAnimation(.easeIn(duration: 0.8).delay(1.2)) {
                     opacity = 0
                 }

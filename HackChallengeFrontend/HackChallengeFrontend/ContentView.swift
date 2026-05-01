@@ -20,40 +20,40 @@ struct ContentView: View {
     }
     
     var totalPoints: Int {
-        tasks.filter { $0.isCompleted}.reduce(0) { $0 + $1.points }
+        tasks.filter { $0.isCompleted }.reduce(0) { $0 + $1.points }
     }
-    
     
     var body: some View {
         NavigationStack {
-            ZStack{
+            ZStack {
                 Color.vinylCream.ignoresSafeArea()
                 
                 ScrollView {
-                    
                     VStack(spacing: 12) {
                         
-                        
+                        // header
                         VStack(spacing: 16) {
                             Text("tracklist")
                                 .font(.system(size: 40, weight: .black))
                                 .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
-                            
                             Text("get into the groove")
                                 .font(.system(size: 18, weight: .medium))
                                 .italic()
                                 .foregroundStyle(Color.vinylGold)
-                                //.tracking(1)
                         }
                         .padding(.bottom, 2)
                         
-                        ZStack {
-                            RingProgressView(progress: progress, completed: completedCount, total: tasks.count)
-                        }
+                        // ring — no isTimerRunning
+                        RingProgressView(
+                            progress: progress,
+                            completed: completedCount,
+                            total: tasks.count
+                        )
                         
-                        HStack(spacing: 0){
+                        // stats
+                        HStack(spacing: 0) {
                             Spacer()
-                            VStack(spacing: 2){
+                            VStack(spacing: 2) {
                                 Text("\(completedCount)")
                                     .font(.system(size: 28, weight: .black))
                                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
@@ -62,15 +62,13 @@ struct ContentView: View {
                                     .tracking(1)
                                     .foregroundStyle(Color.vinylGray)
                             }
-                            
                             Spacer()
                             Rectangle()
                                 .fill(Color(red: 0.5, green: 0.45, blue: 0.4).opacity(0.2))
                                 .frame(width: 1, height: 40)
                             Spacer()
-                            
                             VStack(spacing: 2) {
-                                Text("\(tasks.count-completedCount)")
+                                Text("\(tasks.count - completedCount)")
                                     .font(.system(size: 28, weight: .black))
                                     .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
                                 Text("remain")
@@ -78,13 +76,11 @@ struct ContentView: View {
                                     .tracking(1)
                                     .foregroundStyle(Color.vinylGray)
                             }
-                            
                             Spacer()
                             Rectangle()
                                 .fill(Color(red: 0.5, green: 0.45, blue: 0.4).opacity(0.2))
                                 .frame(width: 1, height: 40)
                             Spacer()
-                            
                             VStack(spacing: 2) {
                                 Text("\(totalPoints)")
                                     .font(.system(size: 28, weight: .black))
@@ -101,6 +97,7 @@ struct ContentView: View {
                         .cornerRadius(12)
                         .padding(.horizontal)
                         
+                        // your tracks header
                         HStack {
                             Text("YOUR TRACKS")
                                 .font(.system(size: 11, weight: .bold))
@@ -111,6 +108,7 @@ struct ContentView: View {
                         .padding(.horizontal)
                         .padding(.top, 12)
                         
+                        // task list
                         if tasks.isEmpty {
                             VStack(spacing: 8) {
                                 Text("🎵")
@@ -121,13 +119,16 @@ struct ContentView: View {
                                     .foregroundStyle(Color(red: 0.5, green: 0.45, blue: 0.4))
                             }
                             .padding(10)
-                            
                         } else {
-                            ForEach($tasks.reversed()) { $task in TaskRowView(task: $task)
-                                
+                            ForEach($tasks.sorted(by: { !$0.isCompleted.wrappedValue && $1.isCompleted.wrappedValue })) { $task in
+                                TaskRowView(task: $task, tasks: $tasks)
+                            }
+                            .onDelete { indexSet in
+                                tasks.remove(atOffsets: indexSet)
                             }
                         }
                         
+                        // add track button
                         NavigationLink {
                             TaskCreationView(tasks: $tasks)
                         } label: {
@@ -157,5 +158,4 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
-
 // scrollable

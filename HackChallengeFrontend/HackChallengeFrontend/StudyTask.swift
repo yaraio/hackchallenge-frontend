@@ -12,7 +12,7 @@ struct StudyTask: Identifiable {
     let name: String
     let description: String
     let priority: String
-    let estimatedTime: Int
+    let estimatedTime: Double
     let points: Int
     var isCompleted: Bool
 }
