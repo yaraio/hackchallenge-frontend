@@ -26,77 +26,130 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                Text("Study App")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+            ZStack{
+                Color.vinylCream.ignoresSafeArea()
                 
-                Text("Task creation flow")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-                
-                RingProgressView(progress: progress, completed: completedCount, total: tasks.count)
-                
-                HStack(spacing: 0){
-                    Spacer()
-                    VStack(spacing: 4){
-                        Text("\(completedCount)")
-                            .font(.title2).fontWeight(.bold)
-                        Text("Done")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    VStack(spacing: 4) {
-                        Text("\(tasks.count-completedCount)")
-                            .font(.title2).fontWeight(.bold)
-                        Text("Left")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    VStack(spacing: 4) {
-                        Text("\(totalPoints)")
-                            .font(.title2).fontWeight(.bold).foregroundStyle(.blue)
-                        Text("Points")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(16)
-                .padding(.horizontal)
-                
-                if tasks.isEmpty {
-                    VStack(spacing: 10) {
-                        //Image(systemName: "checklist")
-                            //.font(.system(size:40))
-                            //.foregroundStyle(.secondary)
-                        Text("No tasks created yet - add one!")
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(40)
-                } else {
-                    ForEach($tasks) { $task in TaskRowView(task: $task)
+                ScrollView {
+                    
+                    VStack(spacing: 12) {
                         
-                    }
-                }
-                
-                NavigationLink {
-                    TaskCreationView(tasks: $tasks)
-                } label: {
-                    Text("Create Task")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(.blue)
+                        
+                        VStack(spacing: 16) {
+                            Text("tracklist")
+                                .font(.system(size: 40, weight: .black))
+                                .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+                            
+                            Text("get into the groove")
+                                .font(.system(size: 18, weight: .medium))
+                                .italic()
+                                .foregroundStyle(Color.vinylGold)
+                                //.tracking(1)
+                        }
+                        .padding(.bottom, 2)
+                        
+                        ZStack {
+                            RingProgressView(progress: progress, completed: completedCount, total: tasks.count)
+                        }
+                        
+                        HStack(spacing: 0){
+                            Spacer()
+                            VStack(spacing: 2){
+                                Text("\(completedCount)")
+                                    .font(.system(size: 28, weight: .black))
+                                    .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+                                Text("done")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(Color.vinylGray)
+                            }
+                            
+                            Spacer()
+                            Rectangle()
+                                .fill(Color(red: 0.5, green: 0.45, blue: 0.4).opacity(0.2))
+                                .frame(width: 1, height: 40)
+                            Spacer()
+                            
+                            VStack(spacing: 2) {
+                                Text("\(tasks.count-completedCount)")
+                                    .font(.system(size: 28, weight: .black))
+                                    .foregroundStyle(Color(red: 0.15, green: 0.15, blue: 0.15))
+                                Text("remain")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(Color.vinylGray)
+                            }
+                            
+                            Spacer()
+                            Rectangle()
+                                .fill(Color(red: 0.5, green: 0.45, blue: 0.4).opacity(0.2))
+                                .frame(width: 1, height: 40)
+                            Spacer()
+                            
+                            VStack(spacing: 2) {
+                                Text("\(totalPoints)")
+                                    .font(.system(size: 28, weight: .black))
+                                    .foregroundStyle(Color.vinylGold)
+                                Text("points")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(Color.vinylGray)
+                            }
+                            Spacer()
+                        }
+                        .padding(.vertical, 16)
+                        .background(Color.vinylGold.opacity(0.15))
                         .cornerRadius(12)
+                        .padding(.horizontal)
+                        
+                        HStack {
+                            Text("YOUR TRACKS")
+                                .font(.system(size: 11, weight: .bold))
+                                .tracking(2)
+                                .foregroundStyle(Color(red: 0.5, green: 0.45, blue: 0.4))
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+                        
+                        if tasks.isEmpty {
+                            VStack(spacing: 8) {
+                                Text("🎵")
+                                    .font(.system(size: 40))
+                                Text("no tracks yet")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .tracking(1)
+                                    .foregroundStyle(Color(red: 0.5, green: 0.45, blue: 0.4))
+                            }
+                            .padding(10)
+                            
+                        } else {
+                            ForEach($tasks.reversed()) { $task in TaskRowView(task: $task)
+                                
+                            }
+                        }
+                        
+                        NavigationLink {
+                            TaskCreationView(tasks: $tasks)
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 14, weight: .bold))
+                                Text("add track")
+                                    .font(.system(size: 16, weight: .bold))
+                            }
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color(red: 0.12, green: 0.12, blue: 0.12))
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+                        
+                        Spacer()
+                    }
+                    .padding(.top, 40)
                 }
-                .padding(.horizontal)
-                
-                Spacer()
             }
-            .padding(.top, 40)
         }
     }
 }

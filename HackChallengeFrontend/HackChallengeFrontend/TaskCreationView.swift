@@ -15,52 +15,62 @@ struct TaskCreationView: View {
     
     @State private var name = ""
     @State private var description = ""
-    @State private var priority = "Medium"
+    @State private var priority = "medium"
     @State private var estimatedTime = 1
     
-    let priorities = ["Low", "Medium", "High"]
+    let priorities = ["low", "medium", "high"]
     
     var points: Int {
         estimatedTime
     }
     
     var body: some View {
-        Form {
-            Section("Task Info") {
-                TextField("Task Name", text: $name)
-                TextField("Description", text: $description)
-                
-                Picker("Priority", selection: $priority) {
-                    ForEach(priorities, id: \.self) { priority in
-                        Text(priority)
-                    }
-                }
-                
-                Stepper("Estimated Time: \(estimatedTime) hour(s)", value: $estimatedTime, in: 1...10)
-                
-                Text("Points: \(points)")
-                    .fontWeight(.semibold)
-            }
-            
-            Section {
-                Button("Add Task") {
-                    let newTask = StudyTask(
-                        name: name,
-                        description: description,
-                        priority: priority,
-                        estimatedTime: estimatedTime,
-                        points: points,
-                        isCompleted: false
-                    )
+        ZStack {
+            Color.vinylCream.ignoresSafeArea()
+            Form {
+                Section("task info") {
+                    TextField("task name", text: $name)
+                    TextField("description", text: $description)
                     
-                    tasks.append(newTask)
-                    dismiss()
+                    Picker("priority", selection: $priority) {
+                        ForEach(priorities, id: \.self) { priority in
+                            Text(priority)
+                        }
+                    }
+                    
+                    Stepper("estimated time: \(estimatedTime) hour(s)", value: $estimatedTime, in: 1...10)
+                    
+                    Text("points: \(points)")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.vinylGold)
                 }
-                .disabled(name.isEmpty || description.isEmpty)
+                
+                Section {
+                    Button("add task") {
+                        let newTask = StudyTask(
+                            name: name,
+                            description: description,
+                            priority: priority,
+                            estimatedTime: estimatedTime,
+                            points: points,
+                            isCompleted: false
+                        )
+                        
+                        tasks.append(newTask)
+                        dismiss()
+                    }
+                    .disabled(name.isEmpty || description.isEmpty)
+                    .foregroundStyle(Color.vinylGold)
+                }
             }
+            .tint(Color.vinylGold)
+            .scrollContentBackground(.hidden)
+
         }
-        .navigationTitle("Create Task")
+        .navigationTitle("create task")
         .navigationBarTitleDisplayMode(.inline)
+        //.background(Color.vinylCream.ignoresSafeArea())
+        //.foregroundStyle(Color.gardenGreen)
     }
 }
 

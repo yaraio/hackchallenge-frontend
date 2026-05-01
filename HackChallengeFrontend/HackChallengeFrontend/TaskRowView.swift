@@ -12,33 +12,48 @@ struct TaskRowView: View {
     
     @Binding var task: StudyTask
     
+    var priorityColor: Color {
+        switch task.priority {
+        case "high": return .red
+        case "medium": return .orange
+        default: return Color.vinylGold
+        }
+    }
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                Text(task.name)
-                    .font(.headline)
-                
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(priorityColor)
+                        .frame(width: 8, height: 8)
+                    Text(task.name)
+                        .font(.headline)
+                        .foregroundStyle(task.isCompleted ? Color.gray : Color(red: 0.15, green: 0.15, blue: 0.15))
+                        .strikethrough(task.isCompleted)
+                }
                 Text(task.description)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                
-                Text("\(task.priority) Priority • \(task.estimatedTime) hr • \(task.points) pts")
+                    .foregroundStyle(Color.vinylGray)
+                Text("\(task.priority) priority • \(task.estimatedTime) hr • \(task.points) pts")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.vinylGray)
             }
             
             Spacer()
             
+            // simple button, no overlay
             Button {
                 task.isCompleted.toggle()
             } label: {
                 Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundStyle(task.isCompleted ? .green : .gray)
+                    .foregroundStyle(task.isCompleted ? Color.vinylGold : Color.vinylGold.opacity(0.4))
             }
+            .buttonStyle(.plain) // 👈 removes the default box/background
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(task.isCompleted ? Color.vinylGold.opacity(0.1) : Color.vinylCream)
         .cornerRadius(14)
         .padding(.horizontal)
     }
