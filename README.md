@@ -1,51 +1,38 @@
 # hackchallenge-frontend
-# Tracklist — Frontend
+# Tracklist
 
-A music-themed iOS study app built in SwiftUI that gamifies task completion through a vinyl record progress ring.
+Get into the groove-- turn your study session into a vinyl record.
 
-## Concept
+## Links
+- **Frontend Repo:** https://github.com/yaraibrahimm/hackchallenge-frontend
+- **Backend Repo:** https://github.com/lywhelen/App-Design
 
-Tracklist turns your to-do list into a vinyl record. Every task you add becomes a track on the record. As you complete tasks, the ring closes. When all tasks are done, the record is full — Get into the groove.
+## Screenshots
+<img width="359" height="781" alt="Screenshot 2026-05-02 at 12 05 06 AM" src="https://github.com/user-attachments/assets/0e13df90-4f3b-4236-b108-f9bbcceb0d02" />
+
+<img width="357" height="780" alt="Screenshot 2026-05-02 at 12 05 34 AM" src="https://github.com/user-attachments/assets/22921ee4-ab3c-4d8e-9c3c-f0dc502a7762" />
+
+<img width="359" height="777" alt="Screenshot 2026-05-02 at 12 04 21 AM" src="https://github.com/user-attachments/assets/734821fe-65ac-4a99-b90d-000020024f38" />
+
+
+## About
+Tracklist is a music-themed iOS study app that gamifies task completion through a vinyl record progress ring. Every task you add becomes a track on the record — as you complete them, the ring fills. When all tasks are done, Side A is complete.
 
 ## Features
-
-- **Vinyl progress ring** — shows overall completion percentage, animates and spins on task completion with music note effects
-- **Music player task rows** — each task expands into a full player with a scrubbable progress bar, play/pause, rewind, and fast forward
-- **Real time countdown timer** — auto-starts when a task is created, counts down based on estimated time chosen by user
-- **Record scratch alert** — haptic feedback pattern fires when timer runs out, sheet appears with options to mark complete, add 30 minutes, restart/continue, or edit the task
-- **Task creation & editing** — shared screen handles both flows, pre-fills fields when editing, includes delete option
-- **Time picker** — estimated time in 30 minute increments from 30 min to 8 hrs
-- **Points system** — points awarded based on estimated time, displayed on dashboard
-- **Smart sorting** — incomplete tasks float to top, completed tasks sink to bottom
-- **Swipe to delete** — swipe left on any task to remove it
-- **Haptic feedback** — on task completion, timer end, and play/pause
-
-## Screens
-
-- `ContentView` — main dashboard with vinyl ring, stats, and task list
-- `TaskCreationView` — create and edit tasks
-- `TaskRowView` — expandable music player embedded in each task row
-- `RingProgressView` — vinyl record progress ring component
-
-## Architecture
-
-- **`TaskViewModel`** — `ObservableObject` managing all task state using `@Published` properties. Handles fetching, creating, completing, deleting, and locally updating tasks. Acts as the single source of truth between the UI and the network layer.
-- **`NetworkManager`** — singleton class handling all HTTP requests via `URLSession`. Encodes outgoing requests as JSON and decodes responses using a generic `APIResponse<T>` wrapper. Supports GET, POST, PUT, and DELETE operations.
-- **`APIResponse`** — generic decodable struct wrapping all backend responses in a consistent `{ success, data, error }` shape.
-
-## Networking
-
-All API calls go through `NetworkManager.shared` using `URLSession`:
-
-GET `/api/users/<id>/tasks/` Fetch all active tasks
-POST `/api/users/<id>/tasks/` Create a new task
-PUT  `/api/tasks/<id>/complete/` Mark task complete, award points
-DELETE | `/api/tasks/<id>/` Delete a task
-
-Requests and responses are encoded/decoded using `JSONEncoder` and `JSONDecoder`. 
+- Vinyl record progress ring showing overall completion percentage
+- Expandable music player UI on each task with a real time countdown timer and scrubbable progress bar
+- Record scratch haptic animation when timer runs out, with options to mark complete, add time, or edit
+- Task creation and editing with time estimates in 30 minute increments and auto-calculated points
 
 
-## Design
+## Requirements
+- **SwiftUI:** Built entirely in SwiftUI using stacks, navigation, sheets, and custom components
+- **Navigation:** NavigationStack with NavigationLink between dashboard, task creation, and edit screens
+- **@State / @Binding / @ObservedObject:** Task state managed via @State and @Binding flowing through all views, with TaskViewModel as an ObservableObject
+- **Networking:** URLSession used in NetworkManager to communicate with backend — supports GET, POST, PUT, and DELETE requests with JSON encoding/decoding
+- **Data persistence:** Tasks and user data persisted on the backend and synced
 
-Built around a cream, gold, and dark color palette defined in a shared `Colors.swift` extension. Custom vinyl record graphic with grooves, gold label, progress arc, and record needle. Music notes animate from the center of the vinyl on task completion.
-
+## Notes
+- The vinyl record, progress ring, music player UI, and record scratch animation are all custom built
+- Haptic feedback is used throughout to enhance the music theme
+- Backend repo linked above handles user accounts, task management, and the points/track system
