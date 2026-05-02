@@ -23,6 +23,8 @@ Tracklist is a music-themed iOS study app that gamifies task completion through 
 - Expandable music player UI on each task with a real time countdown timer and scrubbable progress bar
 - Record scratch haptic animation when timer runs out, with options to mark complete, add time, or edit
 - Task creation and editing with time estimates in 30 minute increments and auto-calculated points
+- On completion, task crosses out and moves to bottom, vinyl ring fills up, with spinning disc animation and music notes
+- When timer runs out, given options to continue, add time, edit task, or mark as complete
 
 
 ## Requirements
